@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ImagenesApp</string>
+    <string name="delete_button_description">Eliminar</string>
+
+</resources>
