@@ -12,7 +12,7 @@ class ImageAdapter(
     private val imageList: MutableList<Uri>,
     private val onItemClick: (Uri) -> Unit,
     private val onImageClick: (Uri) -> Unit,
-    private val onDeleteClick: (Int) -> Unit
+    private val onDeleteClick: (Uri) -> Unit // Cambia el tipo del parámetro a Uri
 ) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
@@ -30,11 +30,10 @@ class ImageAdapter(
             onImageClick(imageUri)
         }
         holder.itemView.findViewById<ImageView>(R.id.btnDelete).setOnClickListener {
-            onDeleteClick(position)
+            onDeleteClick(imageUri) // Pasa el Uri en lugar de la posición
         }
-
-
     }
+
 
     override fun getItemCount(): Int {
         return imageList.size
