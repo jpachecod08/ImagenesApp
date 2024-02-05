@@ -5,16 +5,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal">
 
-
-
+    <!-- ImageView para mostrar la imagen -->
     <ImageView
         android:id="@+id/imageViewItem"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:scaleType="fitCenter"
         android:layout_margin="8dp"
-        android:adjustViewBounds="true"/>
+        android:adjustViewBounds="true"/> <!-- Ajusta las dimensiones para que la imagen se ajuste -->
 
+    <!-- ImageButton para eliminar la imagen -->
     <ImageButton
         android:id="@+id/btnDelete"
         android:layout_width="wrap_content"

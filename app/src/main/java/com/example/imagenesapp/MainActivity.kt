@@ -18,11 +18,11 @@ import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
 
+    // Declaraciones de variables
     private lateinit var recyclerView: RecyclerView
     private val imageList = mutableListOf<Uri>()
     private lateinit var adapter: ImageAdapter
     private val REQUEST_CODE_READ_EXTERNAL_STORAGE = 123
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +45,12 @@ class MainActivity : AppCompatActivity() {
         } else {
             // Si el permiso está otorgado, cargar la lista de imágenes y configurar el adaptador
             cargarListaImagenes()
+
+            // Obtener nombres y fechas de las fotos
+            val fotosInfo = obtenerNombresFechasFotos(this)
+            for ((nombre, fecha) in fotosInfo) {
+                Log.d("MainActivity", "Nombre: $nombre, Fecha: $fecha")
+            }
         }
     }
 
@@ -76,6 +82,7 @@ class MainActivity : AppCompatActivity() {
         registerLaunchImagenDetalles()
     }
 
+    // Se declara un ActivityResultLauncher que manejará los resultados de las actividades lanzadas para obtener un resultado.
     private val launchImagenDetalles =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -85,19 +92,74 @@ class MainActivity : AppCompatActivity() {
                     if (it != RecyclerView.NO_POSITION) {
                         Log.d("MainActivity", "Received position from ImagenDetallesActivity: $position")
                         imageList.removeAt(it)
+                        // Se notifica al adaptador que se eliminó un elemento en la posición especificada.
                         adapter.notifyItemRemoved(it)
+                        // Se guarda la lista actualizada de imágenes en SharedPreferences.
                         saveImageListToSharedPreferences()
                     }
                 }
             }
         }
 
+    // Método para obtener nombres y fechas de las fotos
+    private fun obtenerNombresFechasFotos(context: Context): ArrayList<Pair<String, String>> {
+        val fotosInfo = arrayListOf<Pair<String, String>>()
+
+        // Verificar permisos de lectura del almacenamiento externo
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Definir las columnas que deseas recuperar
+            val projection = arrayOf(
+                MediaStore.Images.Media.DISPLAY_NAME,  // Nombre del archivo de la imagen
+                MediaStore.Images.Media.DATE_TAKEN     // Fecha en que se tomó la imagen
+            )
+
+            // Ordenar por fecha, de más reciente a más antigua
+            val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
+
+            // Realizar la consulta al proveedor de contenido de MediaStore
+            context.contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                null,
+                null,
+                sortOrder
+            )?.use { cursor ->
+                val nombreColumnIndex =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+                val fechaColumnIndex =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+
+                while (cursor.moveToNext()) {
+                    val nombreFoto = cursor.getString(nombreColumnIndex)
+                    val fechaFoto = cursor.getString(fechaColumnIndex)
+
+                    fotosInfo.add(Pair(nombreFoto, fechaFoto))
+                }
+            }
+        } else {
+            // Solicitar permisos de lectura del almacenamiento externo si no están otorgados
+            ActivityCompat.requestPermissions(
+                context as AppCompatActivity,
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                REQUEST_CODE_READ_EXTERNAL_STORAGE
+            )
+        }
+
+        return fotosInfo
+    }
+
+    // Método para registrar el ActivityResultLauncher
     private fun registerLaunchImagenDetalles() {
         // Este método se encarga de registrar el ActivityResultLauncher
         // No es necesario volver a declarar launchImagenDetalles aquí
         // porque ya lo hemos definido arriba.
     }
 
+    // Manejador del clic en la imagen
     private fun onImageClick(imageUri: Uri, position: Int) {
         if (position != RecyclerView.NO_POSITION) {
             val intent = Intent(this, ImagenDetallesActivity::class.java)
@@ -111,6 +173,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+
+    // Manejador del clic largo en la imagen
     private fun onImageLongClick(imageUri: Uri) {
         val position = imageList.indexOf(imageUri)
         if (position != RecyclerView.NO_POSITION) {
@@ -127,6 +191,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
+    // Método para guardar la lista de imágenes en SharedPreferences
     private fun saveImageListToSharedPreferences() {
         val sharedPreferences = getSharedPreferences("ImageList", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -138,6 +203,7 @@ class MainActivity : AppCompatActivity() {
         editor.apply()
     }
 
+    // Método para cargar la lista de imágenes desde SharedPreferences
     private fun loadImageListFromSharedPreferences() {
         val sharedPreferences = getSharedPreferences("ImageList", Context.MODE_PRIVATE)
         val set = sharedPreferences.getStringSet("imageSet", HashSet<String>())
@@ -151,11 +217,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    // Método para abrir la galería y seleccionar imágenes
     fun openGallery(view: android.view.View) {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, IMAGE_PICK_CODE)
     }
 
+    // Método para manejar el resultado de la selección de imágenes desde la galería
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
@@ -170,6 +239,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    // Código de solicitud para abrir la galería
     companion object {
         private const val IMAGE_PICK_CODE = 1000
     }

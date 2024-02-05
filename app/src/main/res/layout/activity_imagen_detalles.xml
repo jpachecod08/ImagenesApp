@@ -3,32 +3,48 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        tools:context=".MainActivity">
-
-        <TextView
-            android:id="@+id/simpleTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Foto Completa"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_centerInParent="true" />
-
-    </LinearLayout>
-
+    <!-- ImageView para mostrar la foto -->
     <ImageView
         android:id="@+id/imageViewDetail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter"
-        android:adjustViewBounds="true"/>
+        android:adjustViewBounds="true"
+        android:layout_above="@id/infoLayout" />
 
+    <!-- LinearLayout para mostrar información sobre la foto -->
+    <LinearLayout
+        android:id="@+id/infoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        android:padding="16dp">
+
+        <!-- TextView para mostrar el nombre de la foto -->
+        <TextView
+            android:id="@+id/textViewNombre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre de la foto:"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- TextView para mostrar la fecha de la foto -->
+        <TextView
+            android:id="@+id/textViewFecha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fecha de la foto:"
+            android:textStyle="bold"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
 
 </RelativeLayout>
+
+
 
 
